@@ -1,0 +1,211 @@
+================================================================================
+Export linkage
+================================================================================
+
+export void f();
+
+---
+
+(translation_unit
+    (declaration
+        (storage_class_specifier)
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+    )
+)
+
+================================================================================
+No inline classifier (without export possible)
+================================================================================
+
+noinline export void f();
+
+---
+
+(translation_unit
+    (declaration
+        (storage_class_specifier)
+        (storage_class_specifier)
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+    )
+)
+
+================================================================================
+Task function
+================================================================================
+
+task void f();
+
+---
+
+(translation_unit
+    (declaration
+        (storage_class_specifier)
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+    )
+)
+
+================================================================================
+Additional type qualifiers (rate qualifier)
+================================================================================
+
+void f(uniform int a[], int n) {
+    uniform int i = 0;
+    int varying v = a[i];
+}
+
+---
+
+(translation_unit
+    (function_definition
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list
+                (parameter_declaration
+                    (type_qualifier)
+                    type: (primitive_type)
+                    declarator: (array_declarator
+                        declarator: (identifier)
+                    )
+                )
+                (parameter_declaration
+                    type: (primitive_type)
+                    declarator: (identifier)
+                )
+            )
+        )
+        body: (compound_statement
+            (declaration
+                (type_qualifier)
+                type: (primitive_type)
+                declarator: (init_declarator
+                    declarator: (identifier)
+                    value: (number_literal)
+                )
+            )
+            (declaration
+                type: (primitive_type)
+                (type_qualifier)
+                declarator: (init_declarator
+                    declarator: (identifier)
+                    value: (subscript_expression
+                        argument: (identifier)
+                        index: (identifier)
+                    )
+                )
+            )
+        )
+    )
+)
+
+================================================================================
+Built-in types
+================================================================================
+
+int8  value;
+int16 value;
+int32 value;
+int64 value;
+
+uint8  value;
+uint16 value;
+uint32 value;
+uint64 value;
+
+float16 value;
+
+---
+
+(translation_unit
+    (declaration
+        type: (primitive_type)
+        declarator: (identifier)
+    )
+    (declaration
+        type: (primitive_type)
+        declarator: (identifier)
+    )
+    (declaration
+        type: (primitive_type)
+        declarator: (identifier)
+    )
+    (declaration
+        type: (primitive_type)
+        declarator: (identifier)
+    )
+    (declaration
+        type: (primitive_type)
+        declarator: (identifier)
+    )
+    (declaration
+        type: (primitive_type)
+        declarator: (identifier)
+    )
+    (declaration
+        type: (primitive_type)
+        declarator: (identifier)
+    )
+    (declaration
+        type: (primitive_type)
+        declarator: (identifier)
+    )
+    (declaration
+        type: (primitive_type)
+        declarator: (identifier)
+    )
+)
+
+================================================================================
+Call modifiers
+================================================================================
+
+__vectorcall int f() {}
+__regcall int f() {}
+extern "C" __regcall int f() {}
+
+---
+
+(translation_unit
+    (function_definition
+        (ms_call_modifier)
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+        body: (compound_statement)
+    )
+    (function_definition
+        (ms_call_modifier)
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+        body: (compound_statement)
+    )
+    (linkage_specification
+        value: (string_literal)
+        body: (function_definition
+            (ms_call_modifier)
+            type: (primitive_type)
+            declarator: (function_declarator
+                declarator: (identifier)
+                parameters: (parameter_list)
+            )
+            body: (compound_statement)
+        )
+    )
+)

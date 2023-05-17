@@ -5,12 +5,12 @@ module.exports = grammar(C, {
 
     rules: {
         // TODO:
-        // [ ] fix tree-sitter-c dependency
+        // [X] fix tree-sitter-c dependency
         // [ ] unmasked
         // [ ] new/delete
         // [ ] assert/assume/soa/print
         // [ ] operator overloads/in
-        // [ ] template/typename
+        // [ ] template/typename/references
         // [ ] tasks/launch/sync
         // [ ] ISPC constants identifiers
         // [ ] Standard library identifiers
@@ -20,13 +20,12 @@ module.exports = grammar(C, {
         storage_class_specifier: ($, original) => choice(
             'export',
             'noinline',
+            //FIXME: [fab4100@posteo.net; 2023-05-17]
             field('task', $._task),
             original,
         ),
 
-        _task: $ => token(
-            'task'
-        ),
+        _task: $ => 'task',
 
         type_qualifier: (_, original) => choice(
             'varying',
@@ -34,7 +33,7 @@ module.exports = grammar(C, {
             original,
         ),
 
-        primitive_type: (_, original) => token(choice(
+        primitive_type: (_, original) => choice(
             'int8',
             'int16',
             'int32',
@@ -45,7 +44,7 @@ module.exports = grammar(C, {
             'uint64',
             'float16',
             original,
-        )),
+        ),
 
         ms_call_modifier: (_, original) => choice(
             '__vectorcall',
@@ -59,7 +58,7 @@ module.exports = grammar(C, {
             $.cdo_statement,
             $.cfor_statement,
             $.foreach_statement,
-            $.foreach_lane_statement,
+            $.foreach_instance_statement,
             original,
         ),
 
@@ -108,14 +107,14 @@ module.exports = grammar(C, {
             field('body', $._statement)
         ),
 
-        foreach_lane_statement: $ => seq(
+        foreach_instance_statement: $ => seq(
             choice('foreach_active', 'foreach_unique'),
             '(',
-            $._expression,
+            field('initializer', $._expression),
             optional(
                 seq(
-                    field('in_operator', $.in_operator),
-                    $._expression,
+                    $.in_operator,
+                    field('condition', $._expression),
                 )
             ),
             ')',
@@ -124,16 +123,12 @@ module.exports = grammar(C, {
 
         _foreach_range: $ => seq(
             field('range_start', $._expression),
-            field('range_operator', $.range_operator),
+            $.range_operator,
             field('range_end', $._expression),
         ),
 
-        range_operator: $ => token(
-            '...'
-        ),
-
-        in_operator: $ => token(
-            'in'
-        ),
+        range_operator: $ => '...',
+        in_operator: $ => 'in',
+        overload_operator: $ => 'operator',
     }
 });

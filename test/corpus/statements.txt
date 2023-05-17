@@ -1,0 +1,223 @@
+================================================================================
+Coherent control flow: cif
+================================================================================
+
+cif (x < y) {
+    uniform int u;
+}
+
+cif (x < y) {
+    uniform int u;
+} else {
+    varying int v;
+}
+
+---
+
+(translation_unit
+    (cif_statement
+        condition: (parenthesized_expression
+            (binary_expression
+                left: (identifier)
+                right: (identifier)
+            )
+        )
+        consequence: (compound_statement
+            (declaration
+                (type_qualifier)
+                type: (primitive_type)
+                declarator: (identifier)
+            )
+        )
+    )
+
+    (cif_statement
+        condition: (parenthesized_expression
+            (binary_expression
+                left: (identifier)
+                right: (identifier)
+            )
+        )
+        consequence: (compound_statement
+            (declaration
+                (type_qualifier)
+                type: (primitive_type)
+                declarator: (identifier)
+            )
+        )
+        alternative: (compound_statement
+            (declaration
+                (type_qualifier)
+                type: (primitive_type)
+                declarator: (identifier)
+            )
+        )
+    )
+)
+
+================================================================================
+Coherent control flow: cwhile
+================================================================================
+
+cwhile (true) {
+}
+
+---
+
+(translation_unit
+    (cwhile_statement
+        condition: (parenthesized_expression
+            (true)
+        )
+        body: (compound_statement)
+    )
+)
+
+================================================================================
+Coherent control flow: cdo
+================================================================================
+
+cdo {
+} while (true);
+
+---
+
+(translation_unit
+    (cdo_statement
+        body: (compound_statement)
+        condition: (parenthesized_expression
+            (true)
+        )
+    )
+)
+
+================================================================================
+Coherent control flow: cfor
+================================================================================
+
+cfor (;;) {
+}
+
+cfor (int i = 0; i < 10; i++) {
+}
+
+---
+
+(translation_unit
+    (cfor_statement
+        body: (compound_statement)
+    )
+    (cfor_statement
+        initializer: (declaration
+            type: (primitive_type)
+            declarator: (init_declarator
+                declarator: (identifier)
+                value: (number_literal)
+            )
+        )
+        condition: (binary_expression
+            left: (identifier)
+            right: (number_literal)
+        )
+        update: (update_expression
+            argument: (identifier)
+        )
+        body: (compound_statement)
+    )
+)
+
+================================================================================
+Foreach loop: range, multi-dimensional
+================================================================================
+
+foreach (ix = 0 ... Nx) {
+}
+
+foreach (ix = 0 ... Nx, iy = 0 ... Ny) {
+}
+
+foreach_tiled (ix = 0 ... Nx) {
+}
+
+foreach_tiled (ix = 0 ... Nx, iy = 0 ... Ny) {
+}
+
+---
+
+(translation_unit
+    (foreach_statement
+        range_start: (assignment_expression
+            left: (identifier)
+            right: (number_literal)
+        )
+        (range_operator)
+        range_end: (identifier)
+        body: (compound_statement)
+    )
+    (foreach_statement
+        range_start: (assignment_expression
+            left: (identifier)
+            right: (number_literal)
+        )
+        (range_operator)
+        range_end: (identifier)
+        range_start: (assignment_expression
+            left: (identifier)
+            right: (number_literal)
+        )
+        (range_operator)
+        range_end: (identifier)
+        body: (compound_statement)
+    )
+
+    (foreach_statement
+        range_start: (assignment_expression
+            left: (identifier)
+            right: (number_literal)
+        )
+        (range_operator)
+        range_end: (identifier)
+        body: (compound_statement)
+    )
+    (foreach_statement
+        range_start: (assignment_expression
+            left: (identifier)
+            right: (number_literal)
+        )
+        (range_operator)
+        range_end: (identifier)
+        range_start: (assignment_expression
+            left: (identifier)
+            right: (number_literal)
+        )
+        (range_operator)
+        range_end: (identifier)
+        body: (compound_statement)
+    )
+)
+
+================================================================================
+Foreach loop: intra-gang
+================================================================================
+
+foreach_active (i) {
+}
+
+foreach_unique (i in x) {
+}
+
+---
+
+(translation_unit
+    (foreach_instance_statement
+        initializer: (identifier)
+        body: (compound_statement)
+    )
+
+    (foreach_instance_statement
+        initializer: (identifier)
+        (in_operator)
+        condition: (identifier)
+        body: (compound_statement)
+    )
+)
