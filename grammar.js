@@ -6,31 +6,37 @@ module.exports = grammar(C, {
     rules: {
         // TODO:
         // [X] fix tree-sitter-c dependency
-        // [ ] unmasked
-        // [ ] new/delete
-        // [ ] assert/assume/soa/print
+        // [X] unmasked
+        // [X] new/delete
+        // [X] soa
         // [ ] operator overloads/in
         // [ ] template/typename/references
-        // [ ] tasks/launch/sync
+        // [X] tasks/launch/sync
         // [ ] ISPC constants identifiers
-        // [ ] Standard library identifiers
+        // [ ] Standard library identifiers; assert/assume/print
         // [ ] programIndex/programCount/task*/thread* identifiers
         _top_level_item: (_, original) => original,
 
         storage_class_specifier: ($, original) => choice(
             'export',
             'noinline',
-            //FIXME: [fab4100@posteo.net; 2023-05-17]
-            field('task', $._task),
+            field('ispc_special', $.task),
+            field('ispc_special', $.unmasked),
             original,
         ),
 
-        _task: $ => 'task',
-
-        type_qualifier: (_, original) => choice(
+        type_qualifier: ($, original) => choice(
             'varying',
             'uniform',
+            $._soa_qualifier,
             original,
+        ),
+
+        _soa_qualifier: $ => seq(
+            field('ispc_special', $.soa),
+            '<',
+            $.number_literal,
+            '>'
         ),
 
         primitive_type: (_, original) => choice(
@@ -59,6 +65,11 @@ module.exports = grammar(C, {
             $.cfor_statement,
             $.foreach_statement,
             $.foreach_instance_statement,
+            $.unmasked_statement,
+            $.launch_statement,
+            $.sync_statement,
+            $.new_statement,
+            $.delete_statement,
             original,
         ),
 
@@ -127,8 +138,63 @@ module.exports = grammar(C, {
             field('range_end', $._expression),
         ),
 
+        unmasked_statement: $ => seq(
+            field('ispc_special', $.unmasked),
+            field('body', $.compound_statement),
+        ),
+
+        launch_statement: $ => prec(1, seq(
+            field('ispc_special', $.launch),
+            field('launch_config', optional(choice(
+                repeat1(seq('[', $._expression, ']')),
+                seq('[', $._expression, repeat(seq(',', $._expression)), ']'),
+            ))),
+            $.call_expression,
+            ';'
+        )),
+
+        sync_statement: $ => seq(
+            field('ispc_special', $.sync),
+            ';',
+        ),
+
+        new_statement: $ => seq(
+            $._declaration_specifiers,
+            field('declarator', $._declarator),
+            '=',
+            optional($.type_qualifier),
+            field('ispc_special', $.new_operator),
+            optional($.type_qualifier),
+            field('type', $._type_specifier),
+            optional(choice(
+                seq('[',
+                    repeat($.type_qualifier),
+                    field('size', optional(choice($._expression, '*'))),
+                    ']'),
+                field('initializer', $.parenthesized_expression),
+            )),
+            ';'
+        ),
+
+        delete_statement: $ => seq(
+            field('ispc_special', $.delete_operator),
+            optional(seq('[', ']')),
+            $._expression,
+            ';',
+        ),
+
+        // special keywords
+        task: $ => 'task',
+        unmasked: $ => 'unmasked',
+        launch: $ => 'launch',
+        sync: $ => 'sync',
+        soa: $ => 'soa',
+
+        // operators
         range_operator: $ => '...',
         in_operator: $ => 'in',
         overload_operator: $ => 'operator',
+        new_operator: $ => 'new',
+        delete_operator: $ => 'delete',
     }
 });

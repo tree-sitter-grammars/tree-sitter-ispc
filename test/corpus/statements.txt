@@ -221,3 +221,250 @@ foreach_unique (i in x) {
         body: (compound_statement)
     )
 )
+
+================================================================================
+Unmasked compound statement
+================================================================================
+
+unmasked {
+    ++count;
+}
+
+---
+
+(translation_unit
+    (unmasked_statement
+        ispc_special: (unmasked)
+        body: (compound_statement
+            (expression_statement
+                (update_expression
+                    argument: (identifier)
+                )
+            )
+        )
+    )
+)
+
+================================================================================
+Launch and sync statement
+================================================================================
+
+void launch_task() {
+    launch task();
+    sync;
+}
+
+void launch_task() {
+    launch[10] task();
+    sync;
+}
+
+void launch_task() {
+    launch[10][n] task();
+    sync;
+}
+
+void launch_task() {
+    launch[10, n, m] task();
+    sync;
+}
+
+---
+
+(translation_unit
+    (function_definition
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+        body: (compound_statement
+            (launch_statement
+                ispc_special: (launch)
+                (call_expression
+                    function: (identifier)
+                    arguments: (argument_list)
+                )
+            )
+            (sync_statement
+                ispc_special: (sync)
+            )
+        )
+    )
+
+    (function_definition
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+        body: (compound_statement
+            (launch_statement
+                ispc_special: (launch)
+                launch_config: (number_literal)
+                (call_expression
+                    function: (identifier)
+                    arguments: (argument_list)
+                )
+            )
+            (sync_statement
+                ispc_special: (sync)
+            )
+        )
+    )
+
+    (function_definition
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+        body: (compound_statement
+            (launch_statement
+                ispc_special: (launch)
+                launch_config: (number_literal)
+                launch_config: (identifier)
+                (call_expression
+                    function: (identifier)
+                    arguments: (argument_list)
+                )
+            )
+            (sync_statement
+                ispc_special: (sync)
+            )
+        )
+    )
+
+    (function_definition
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+        body: (compound_statement
+            (launch_statement
+                ispc_special: (launch)
+                launch_config: (number_literal)
+                launch_config: (identifier)
+                launch_config: (identifier)
+                (call_expression
+                    function: (identifier)
+                    arguments: (argument_list)
+                )
+            )
+            (sync_statement
+                ispc_special: (sync)
+            )
+        )
+    )
+)
+
+================================================================================
+New statement
+================================================================================
+
+uniform float * uniform p1 = uniform new uniform float[10];
+float * uniform p2 = uniform new float[10];
+float * p3 = new float[10];
+varying float * p4 = new varying float[10];
+float * p5 = new float;
+Point * p6 = new Point(1,2,3);
+
+---
+
+(translation_unit
+    (new_statement
+        (type_qualifier)
+        type: (primitive_type)
+        declarator: (pointer_declarator
+            (type_qualifier)
+            declarator: (identifier)
+        )
+        (type_qualifier)
+        ispc_special: (new_operator)
+        (type_qualifier)
+        type: (primitive_type)
+        size: (number_literal)
+    )
+
+    (new_statement
+        type: (primitive_type)
+        declarator: (pointer_declarator
+            (type_qualifier)
+            declarator: (identifier)
+        )
+        (type_qualifier)
+        ispc_special: (new_operator)
+        type: (primitive_type)
+        size: (number_literal)
+    )
+
+    (new_statement
+        type: (primitive_type)
+        declarator: (pointer_declarator
+            declarator: (identifier)
+        )
+        ispc_special: (new_operator)
+        type: (primitive_type)
+        size: (number_literal)
+    )
+
+    (new_statement
+        (type_qualifier)
+        type: (primitive_type)
+        declarator: (pointer_declarator
+            declarator: (identifier)
+        )
+        ispc_special: (new_operator)
+        (type_qualifier)
+        type: (primitive_type)
+        size: (number_literal)
+    )
+
+    (new_statement
+        type: (primitive_type)
+        declarator: (pointer_declarator
+            declarator: (identifier)
+        )
+        ispc_special: (new_operator)
+        type: (primitive_type)
+    )
+
+    (new_statement
+        type: (type_identifier)
+        declarator: (pointer_declarator
+            declarator: (identifier)
+        )
+        ispc_special: (new_operator)
+        type: (type_identifier)
+        initializer: (parenthesized_expression
+            (comma_expression
+                left: (number_literal)
+                right: (comma_expression
+                    left: (number_literal)
+                    right: (number_literal)
+                )
+            )
+        )
+    )
+)
+
+================================================================================
+Delete statement
+================================================================================
+
+delete[] p1;
+delete Point;
+
+---
+
+(translation_unit
+    (delete_statement
+        ispc_special: (delete_operator)
+        (identifier)
+    )
+    (delete_statement
+        ispc_special: (delete_operator)
+        (identifier)
+    )
+)

@@ -47,7 +47,9 @@ task void f();
 
 (translation_unit
     (declaration
-        (storage_class_specifier)
+        (storage_class_specifier
+            ispc_special: (task)
+        )
         type: (primitive_type)
         declarator: (function_declarator
             declarator: (identifier)
@@ -57,13 +59,36 @@ task void f();
 )
 
 ================================================================================
-Additional type qualifiers (rate qualifier)
+Unmasked function
+================================================================================
+
+unmasked void f();
+
+---
+
+(translation_unit
+    (declaration
+        (storage_class_specifier
+            ispc_special: (unmasked)
+        )
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list)
+        )
+    )
+)
+
+================================================================================
+Additional type qualifiers (rate qualifiers)
 ================================================================================
 
 void f(uniform int a[], int n) {
     uniform int i = 0;
     int varying v = a[i];
 }
+
+soa<8> Particles p[100];
 
 ---
 
@@ -106,6 +131,17 @@ void f(uniform int a[], int n) {
                     )
                 )
             )
+        )
+    )
+    (declaration
+        (type_qualifier
+            ispc_special: (soa)
+            (number_literal)
+        )
+        type: (type_identifier)
+        declarator: (array_declarator
+            declarator: (identifier)
+            size: (number_literal)
         )
     )
 )
