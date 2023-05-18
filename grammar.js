@@ -7,21 +7,19 @@ const PREC = Object.assign(C.PREC, {
 module.exports = grammar(C, {
     name: 'ispc',
 
+    conflicts: ($, original) => original.concat([
+        [$.template_function, $._expression],
+        [$.call_expression, $.llvm_expression],
+    ]),
+
     rules: {
-        // TODO:
-        // [X] fix tree-sitter-c dependency
-        // [X] unmasked
-        // [X] new/delete
-        // [X] soa
-        // [X] operator overloads/in
-        // [ ] template/typename/references/default function args
-        // [ ] LLVM intrinsic functions
-        // [X] tasks/launch/sync
-        //
-        // [ ] ISPC constants identifiers
-        // [ ] Standard library identifiers; assert/assume/print/ISPC{Alloc,Sync,Launch}
-        // [ ] programIndex/programCount/task*/thread* identifiers
-        _top_level_item: (_, original) => original,
+        _top_level_item: ($, original) => choice(
+            original,
+            $.template_declaration,
+            $.template_instantiation,
+        ),
+
+        // storage duration and types
 
         storage_class_specifier: ($, original) => choice(
             original,
@@ -137,6 +135,8 @@ module.exports = grammar(C, {
             ')',
         ),
 
+        // default function arguments
+
         parameter_declaration: $ => seq(
             $._declaration_specifiers,
             optional(field('declarator', choice(
@@ -146,12 +146,16 @@ module.exports = grammar(C, {
             )))
         ),
 
+        // number literal extensions
+
         number_literal: $ => {
             const separator = "'";
             const hex = /[0-9a-fA-F]/;
             const decimal = /[0-9]/;
-            const hexDigits = seq(repeat1(hex), repeat(seq(separator, repeat1(hex))));
-            const decimalDigits = seq(repeat1(decimal), repeat(seq(separator, repeat1(decimal))));
+            const hexDigits = seq(
+                repeat1(hex), repeat(seq(separator, repeat1(hex))));
+            const decimalDigits = seq(
+                repeat1(decimal), repeat(seq(separator, repeat1(decimal))));
             return token(seq(
                 optional(/[-\+]/),
                 optional(choice('0x', '0b')),
@@ -178,6 +182,8 @@ module.exports = grammar(C, {
                     'f16', 'f', 'd', 'F16', 'F', 'D'))
             ))
         },
+
+        // statements
 
         _non_case_statement: ($, original) => choice(
             original,
@@ -219,10 +225,15 @@ module.exports = grammar(C, {
             '(',
             choice(
                 field('initializer', $.declaration),
-                seq(field('initializer', optional(choice($._expression, $.comma_expression))), ';')
+                seq(field('initializer',
+                          optional(choice($._expression, $.comma_expression))),
+                    ';')
             ),
-            field('condition', optional(choice($._expression, $.comma_expression))), ';',
-            field('update', optional(choice($._expression, $.comma_expression))),
+            field('condition',
+                  optional(choice($._expression, $.comma_expression))),
+            ';',
+            field('update',
+                  optional(choice($._expression, $.comma_expression))),
             ')',
             field('body', $._statement)
         ),
@@ -260,12 +271,16 @@ module.exports = grammar(C, {
             field('body', $.compound_statement),
         ),
 
+        // expressions and declarators
+
         _expression: ($, original) => choice(
             original,
             $.new_expression,
             $.delete_expression,
             $.launch_expression,
             $.sync_expression,
+            $.llvm_expression,
+            $.template_function,
         ),
 
         new_expression: $ => prec.right(PREC.NEW, seq(
@@ -309,6 +324,7 @@ module.exports = grammar(C, {
             original,
             $.overload_declarator,
             $.reference_declarator,
+            $.template_function,
         ),
 
         overload_declarator: $ => prec(1, seq(
@@ -331,11 +347,73 @@ module.exports = grammar(C, {
           optional(field('declarator', $._declarator))
         ))),
 
-        // operators
+        // C++ templates support
+
+        template_declaration: $ => seq(
+            'template',
+            field('parameters', $.template_parameter_list),
+            choice(
+                $._empty_declaration,
+                $.declaration,
+                $.template_declaration,
+                $.function_definition,
+            )
+        ),
+
+        template_instantiation: $ => seq(
+            'template',
+            optional($._declaration_specifiers),
+            field('declarator', $._declarator),
+            ';'
+        ),
+
+        template_parameter_list: $ => seq(
+            '<',
+            commaSep(choice(
+                $.parameter_declaration,
+                $.type_parameter_declaration,
+            )),
+            alias(token(prec(1, '>')), '>')
+        ),
+
+        type_parameter_declaration: $ => prec(1, seq(
+            choice('typename', 'class'),
+            optional($._type_identifier)
+        )),
+
+        template_function: $ => seq(
+            field('name', $.identifier),
+            field('arguments', $.template_argument_list)
+        ),
+
+        template_argument_list: $ => seq(
+            '<',
+            commaSep(choice(
+                prec.dynamic(3, $.type_descriptor),
+                prec.dynamic(1, $._expression)
+            )),
+            alias(token(prec(1, '>')), '>')
+        ),
+
+        // LLVM intrinsics support
+
+        llvm_expression: $ => prec(PREC.CALL, seq(
+            '@',
+            field('function', $._expression),
+            field('arguments', $.argument_list)
+        )),
+
+        // special operators
+
         range_operator: $ => '...',
         in_operator: $ => 'in',
-        // overload_operator: $ => 'operator',
-        // new_operator: $ => 'new',
-        // delete_operator: $ => 'delete',
     }
 });
+
+function commaSep(rule) {
+  return optional(commaSep1(rule));
+}
+
+function commaSep1(rule) {
+  return seq(rule, repeat(seq(',', rule)));
+}
