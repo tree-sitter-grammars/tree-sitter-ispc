@@ -468,3 +468,88 @@ delete Point;
         (identifier)
     )
 )
+
+================================================================================
+Operator overload
+================================================================================
+
+struct S operator*(struct S a, struct S b) {
+}
+
+---
+
+(translation_unit
+    (function_definition
+        type: (struct_specifier
+            name: (type_identifier)
+        )
+        declarator: (operator_declarator
+            declarator: (overload_operator)
+            parameters: (parameter_list
+                (parameter_declaration
+                    type: (struct_specifier
+                        name: (type_identifier)
+                    )
+                    declarator: (identifier)
+                )
+                (parameter_declaration
+                    type: (struct_specifier
+                        name: (type_identifier)
+                    )
+                    declarator: (identifier)
+                )
+            )
+        )
+        body: (compound_statement)
+    )
+)
+
+================================================================================
+C++ style references
+================================================================================
+
+void f(float &v) {
+    const float &cr = v;
+    float const &cr = v;
+}
+
+---
+
+(translation_unit
+    (function_definition
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list
+                (parameter_declaration
+                    type: (primitive_type)
+                    declarator: (reference_declarator
+                        declarator: (identifier)
+                    )
+                )
+            )
+        )
+        body: (compound_statement
+            (declaration
+                (type_qualifier)
+                type: (primitive_type)
+                declarator: (init_declarator
+                    declarator: (reference_declarator
+                        declarator: (identifier)
+                    )
+                    value: (identifier)
+                )
+            )
+            (declaration
+                type: (primitive_type)
+                (type_qualifier)
+                declarator: (init_declarator
+                    declarator: (reference_declarator
+                        declarator: (identifier)
+                    )
+                    value: (identifier)
+                )
+            )
+        )
+    )
+)

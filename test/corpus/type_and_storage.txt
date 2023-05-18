@@ -204,6 +204,32 @@ float16 value;
 )
 
 ================================================================================
+Short vector types
+================================================================================
+
+float<4> vec;
+int8<4> vec;
+
+---
+
+(translation_unit
+    (declaration
+        type: (short_vector
+            (primitive_type)
+            (number_literal)
+        )
+        declarator: (identifier)
+    )
+    (declaration
+        type: (short_vector
+            (primitive_type)
+            (number_literal)
+        )
+        declarator: (identifier)
+    )
+)
+
+================================================================================
 Call modifiers
 ================================================================================
 

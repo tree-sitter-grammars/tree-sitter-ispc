@@ -9,27 +9,28 @@ module.exports = grammar(C, {
         // [X] unmasked
         // [X] new/delete
         // [X] soa
-        // [ ] operator overloads/in
+        // [X] operator overloads/in
         // [ ] template/typename/references
         // [X] tasks/launch/sync
+        //
         // [ ] ISPC constants identifiers
-        // [ ] Standard library identifiers; assert/assume/print
+        // [ ] Standard library identifiers; assert/assume/print/ISPC{Alloc,Sync,Launch}
         // [ ] programIndex/programCount/task*/thread* identifiers
         _top_level_item: (_, original) => original,
 
         storage_class_specifier: ($, original) => choice(
+            original,
             'export',
             'noinline',
             field('ispc_special', $.task),
             field('ispc_special', $.unmasked),
-            original,
         ),
 
         type_qualifier: ($, original) => choice(
+            original,
             'varying',
             'uniform',
             $._soa_qualifier,
-            original,
         ),
 
         _soa_qualifier: $ => seq(
@@ -39,7 +40,20 @@ module.exports = grammar(C, {
             '>'
         ),
 
+        _type_specifier: ($, original) => choice(
+            original,
+            $.short_vector,
+        ),
+
+        short_vector: $ => seq(
+            $.primitive_type,
+            '<',
+            $.number_literal,
+            '>'
+        ),
+
         primitive_type: (_, original) => choice(
+            original,
             'int8',
             'int16',
             'int32',
@@ -49,16 +63,16 @@ module.exports = grammar(C, {
             'uint32',
             'uint64',
             'float16',
-            original,
         ),
 
         ms_call_modifier: (_, original) => choice(
+            original,
             '__vectorcall',
             '__regcall',
-            original,
         ),
 
         _non_case_statement: ($, original) => choice(
+            original,
             $.cif_statement,
             $.cwhile_statement,
             $.cdo_statement,
@@ -70,7 +84,6 @@ module.exports = grammar(C, {
             $.sync_statement,
             $.new_statement,
             $.delete_statement,
-            original,
         ),
 
         cif_statement: $ => prec.right(seq(
@@ -182,6 +195,33 @@ module.exports = grammar(C, {
             $._expression,
             ';',
         ),
+
+        _declarator: ($, original) => choice(
+            original,
+            $.operator_declarator,
+            $.reference_declarator,
+        ),
+
+        operator_declarator: $ => prec(1, seq(
+            field('declarator', $.overload_operator),
+            field('operator', choice(
+                '*',
+                '/',
+                '%',
+                '+',
+                '-',
+                '>>',
+                '<<',
+            )),
+            field('parameters', $.parameter_list),
+            repeat($.attribute_specifier),
+          )),
+
+        reference_declarator: $ => prec.dynamic(1, prec.right(seq(
+          // repeat($.type_qualifier),
+          '&',
+          field('declarator', $._declarator)
+        ))),
 
         // special keywords
         task: $ => 'task',
