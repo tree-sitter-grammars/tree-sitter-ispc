@@ -24,7 +24,9 @@ cif (x < y) {
         )
         consequence: (compound_statement
             (declaration
-                (type_qualifier)
+                (type_qualifier
+                    (ispc_qualifier)
+                )
                 type: (primitive_type)
                 declarator: (identifier)
             )
@@ -40,14 +42,18 @@ cif (x < y) {
         )
         consequence: (compound_statement
             (declaration
-                (type_qualifier)
+                (type_qualifier
+                    (ispc_qualifier)
+                )
                 type: (primitive_type)
                 declarator: (identifier)
             )
         )
         alternative: (compound_statement
             (declaration
-                (type_qualifier)
+                (type_qualifier
+                    (ispc_qualifier)
+                )
                 type: (primitive_type)
                 declarator: (identifier)
             )
@@ -234,7 +240,6 @@ unmasked {
 
 (translation_unit
     (unmasked_statement
-        ispc_special: (unmasked)
         body: (compound_statement
             (expression_statement
                 (update_expression
@@ -250,22 +255,22 @@ Launch and sync statement
 ================================================================================
 
 void launch_task() {
-    launch task();
+    launch task1();
     sync;
 }
 
 void launch_task() {
-    launch[10] task();
+    launch[10] task2();
     sync;
 }
 
 void launch_task() {
-    launch[10][n] task();
+    launch[10][n] task3();
     sync;
 }
 
 void launch_task() {
-    launch[10, n, m] task();
+    launch[10, n, m] task4();
     sync;
 }
 
@@ -279,15 +284,16 @@ void launch_task() {
             parameters: (parameter_list)
         )
         body: (compound_statement
-            (launch_statement
-                ispc_special: (launch)
-                (call_expression
-                    function: (identifier)
-                    arguments: (argument_list)
+            (expression_statement
+                (launch_expression
+                    (call_expression
+                        function: (identifier)
+                        arguments: (argument_list)
+                    )
                 )
             )
-            (sync_statement
-                ispc_special: (sync)
+            (expression_statement
+                (sync_expression)
             )
         )
     )
@@ -299,16 +305,17 @@ void launch_task() {
             parameters: (parameter_list)
         )
         body: (compound_statement
-            (launch_statement
-                ispc_special: (launch)
-                launch_config: (number_literal)
-                (call_expression
-                    function: (identifier)
-                    arguments: (argument_list)
+            (expression_statement
+                (launch_expression
+                    launch_config: (number_literal)
+                    (call_expression
+                        function: (identifier)
+                        arguments: (argument_list)
+                    )
                 )
             )
-            (sync_statement
-                ispc_special: (sync)
+            (expression_statement
+                (sync_expression)
             )
         )
     )
@@ -320,17 +327,18 @@ void launch_task() {
             parameters: (parameter_list)
         )
         body: (compound_statement
-            (launch_statement
-                ispc_special: (launch)
-                launch_config: (number_literal)
-                launch_config: (identifier)
-                (call_expression
-                    function: (identifier)
-                    arguments: (argument_list)
+            (expression_statement
+                (launch_expression
+                    launch_config: (number_literal)
+                    launch_config: (identifier)
+                    (call_expression
+                        function: (identifier)
+                        arguments: (argument_list)
+                    )
                 )
             )
-            (sync_statement
-                ispc_special: (sync)
+            (expression_statement
+                (sync_expression)
             )
         )
     )
@@ -342,18 +350,19 @@ void launch_task() {
             parameters: (parameter_list)
         )
         body: (compound_statement
-            (launch_statement
-                ispc_special: (launch)
-                launch_config: (number_literal)
-                launch_config: (identifier)
-                launch_config: (identifier)
-                (call_expression
-                    function: (identifier)
-                    arguments: (argument_list)
+            (expression_statement
+                (launch_expression
+                    launch_config: (number_literal)
+                    launch_config: (identifier)
+                    launch_config: (identifier)
+                    (call_expression
+                        function: (identifier)
+                        arguments: (argument_list)
+                    )
                 )
             )
-            (sync_statement
-                ispc_special: (sync)
+            (expression_statement
+                (sync_expression)
             )
         )
     )
@@ -368,81 +377,195 @@ float * uniform p2 = uniform new float[10];
 float * p3 = new float[10];
 varying float * p4 = new varying float[10];
 float * p5 = new float;
-Point * p6 = new Point(1,2,3);
+Point * p6 = new Point(1, 2, 3);
+
+soa<8> Foo * uniform pts = uniform new varying soa<8> Foo[10];
+pts[i].pts[j] = new uniform Point[4];
+varying Foo * uniform ptr = (varying Foo * uniform)(uniform new varying int32[nFloats]);
 
 ---
 
 (translation_unit
-    (new_statement
-        (type_qualifier)
-        type: (primitive_type)
-        declarator: (pointer_declarator
-            (type_qualifier)
-            declarator: (identifier)
+    (declaration
+        (type_qualifier
+            (ispc_qualifier)
         )
-        (type_qualifier)
-        ispc_special: (new_operator)
-        (type_qualifier)
         type: (primitive_type)
-        size: (number_literal)
-    )
-
-    (new_statement
-        type: (primitive_type)
-        declarator: (pointer_declarator
-            (type_qualifier)
-            declarator: (identifier)
+        declarator: (init_declarator
+            declarator: (pointer_declarator
+                (type_qualifier
+                    (ispc_qualifier)
+                )
+                declarator: (identifier)
+            )
+            value: (new_expression
+                (ispc_qualifier)
+                (ispc_qualifier)
+                type: (primitive_type)
+                declarator: (new_declarator
+                    length: (number_literal)
+                )
+            )
         )
-        (type_qualifier)
-        ispc_special: (new_operator)
-        type: (primitive_type)
-        size: (number_literal)
     )
-
-    (new_statement
+    (declaration
         type: (primitive_type)
-        declarator: (pointer_declarator
-            declarator: (identifier)
+        declarator: (init_declarator
+            declarator: (pointer_declarator
+                (type_qualifier
+                    (ispc_qualifier)
+                )
+                declarator: (identifier)
+            )
+            value: (new_expression
+                (ispc_qualifier)
+                type: (primitive_type)
+                declarator: (new_declarator
+                    length: (number_literal)
+                )
+            )
         )
-        ispc_special: (new_operator)
-        type: (primitive_type)
-        size: (number_literal)
     )
-
-    (new_statement
-        (type_qualifier)
+    (declaration
         type: (primitive_type)
-        declarator: (pointer_declarator
-            declarator: (identifier)
+        declarator: (init_declarator
+            declarator: (pointer_declarator
+                declarator: (identifier)
+            )
+            value: (new_expression
+                type: (primitive_type)
+                declarator: (new_declarator
+                    length: (number_literal)
+                )
+            )
         )
-        ispc_special: (new_operator)
-        (type_qualifier)
-        type: (primitive_type)
-        size: (number_literal)
     )
-
-    (new_statement
-        type: (primitive_type)
-        declarator: (pointer_declarator
-            declarator: (identifier)
+    (declaration
+        (type_qualifier
+            (ispc_qualifier)
         )
-        ispc_special: (new_operator)
         type: (primitive_type)
+        declarator: (init_declarator
+            declarator: (pointer_declarator
+                declarator: (identifier)
+            )
+            value: (new_expression
+                (ispc_qualifier)
+                type: (primitive_type)
+                declarator: (new_declarator
+                    length: (number_literal)
+                )
+            )
+        )
     )
-
-    (new_statement
+    (declaration
+        type: (primitive_type)
+        declarator: (init_declarator
+            declarator: (pointer_declarator
+                declarator: (identifier)
+            )
+            value: (new_expression
+                type: (primitive_type)
+            )
+        )
+    )
+    (declaration
         type: (type_identifier)
-        declarator: (pointer_declarator
-            declarator: (identifier)
+        declarator: (init_declarator
+            declarator: (pointer_declarator
+                declarator: (identifier)
+            )
+            value: (new_expression
+                type: (type_identifier)
+                arguments: (argument_list
+                    (number_literal)
+                    (number_literal)
+                    (number_literal)
+                )
+            )
         )
-        ispc_special: (new_operator)
+    )
+    (declaration
+        (type_qualifier
+            (ispc_qualifier
+                (number_literal)
+            )
+        )
         type: (type_identifier)
-        initializer: (parenthesized_expression
-            (comma_expression
-                left: (number_literal)
-                right: (comma_expression
-                    left: (number_literal)
-                    right: (number_literal)
+        declarator: (init_declarator
+            declarator: (pointer_declarator
+                (type_qualifier
+                    (ispc_qualifier)
+                )
+                declarator: (identifier)
+            )
+            value: (new_expression
+                (ispc_qualifier)
+                (ispc_qualifier)
+                (ispc_qualifier
+                    (number_literal)
+                )
+                type: (type_identifier)
+                declarator: (new_declarator
+                    length: (number_literal)
+                )
+            )
+        )
+    )
+    (expression_statement
+        (assignment_expression
+            left: (subscript_expression
+                argument: (field_expression
+                    argument: (subscript_expression
+                        argument: (identifier)
+                        index: (identifier)
+                    )
+                    field: (field_identifier)
+                )
+                index: (identifier)
+            )
+            right: (new_expression
+                (ispc_qualifier)
+                type: (type_identifier)
+                declarator: (new_declarator
+                    length: (number_literal)
+                )
+            )
+        )
+    )
+    (declaration
+        (type_qualifier
+            (ispc_qualifier)
+        )
+        type: (type_identifier)
+        declarator: (init_declarator
+            declarator: (pointer_declarator
+                (type_qualifier
+                    (ispc_qualifier)
+                )
+                declarator: (identifier)
+            )
+            value: (cast_expression
+                type: (type_descriptor
+                    (type_qualifier
+                        (ispc_qualifier)
+                    )
+                    type: (type_identifier)
+                    declarator: (abstract_pointer_declarator
+                        (type_qualifier
+                            (ispc_qualifier)
+                        )
+                    )
+                )
+                value: (parenthesized_expression
+                    (new_expression
+                        (ispc_qualifier)
+                        (ispc_qualifier)
+                        type: (primitive_type)
+                        declarator: (new_declarator
+                            length: (identifier)
+                        )
+                    )
                 )
             )
         )
@@ -455,17 +578,27 @@ Delete statement
 
 delete[] p1;
 delete Point;
+(delete[] Particles);
 
 ---
 
 (translation_unit
-    (delete_statement
-        ispc_special: (delete_operator)
-        (identifier)
+    (expression_statement
+        (delete_expression
+            (identifier)
+        )
     )
-    (delete_statement
-        ispc_special: (delete_operator)
-        (identifier)
+    (expression_statement
+        (delete_expression
+            (identifier)
+        )
+    )
+    (expression_statement
+        (parenthesized_expression
+            (delete_expression
+                (identifier)
+            )
+        )
     )
 )
 
@@ -483,8 +616,7 @@ struct S operator*(struct S a, struct S b) {
         type: (struct_specifier
             name: (type_identifier)
         )
-        declarator: (operator_declarator
-            declarator: (overload_operator)
+        declarator: (overload_declarator
             parameters: (parameter_list
                 (parameter_declaration
                     type: (struct_specifier

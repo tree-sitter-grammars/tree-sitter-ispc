@@ -1,5 +1,9 @@
 const C = require("tree-sitter-c/grammar")
 
+const PREC = Object.assign(C.PREC, {
+  NEW: C.PREC.CALL + 1,
+})
+
 module.exports = grammar(C, {
     name: 'ispc',
 
@@ -25,17 +29,21 @@ module.exports = grammar(C, {
             'noinline',
         ),
 
-        type_qualifier: ($, original) => choice(
+        type_qualifier: ($, original) => prec(1, choice(
             original,
+            $.ispc_qualifier,
+        )),
+
+        ispc_qualifier: $ => choice(
             'varying',
             'uniform',
-            field('ispc_special', $.task),
-            field('ispc_special', $.unmasked),
+            'task',
+            'unmasked',
             $._soa_qualifier,
         ),
 
         _soa_qualifier: $ => seq(
-            field('ispc_special', $.soa),
+            'soa',
             '<',
             $.number_literal,
             '>'
@@ -61,12 +69,47 @@ module.exports = grammar(C, {
             )))
         ),
 
-        short_vector: $ => seq(
+        short_vector: $ => prec(1, seq(
             $.primitive_type,
             '<',
             $.number_literal,
             '>'
-        ),
+        )),
+
+        enum_specifier: $ => prec.right(seq(
+            'enum',
+            choice(
+                seq(
+                    field('name', $._type_identifier),
+                    field('body', optional($.enumerator_list))
+                ),
+                field('body', $.enumerator_list)
+            )
+        )),
+
+        struct_specifier: $ => prec.right(seq(
+            'struct',
+            optional($.ms_declspec_modifier),
+            choice(
+                seq(
+                    field('name', $._type_identifier),
+                    field('body', optional($.field_declaration_list))
+                ),
+                field('body', $.field_declaration_list)
+            )
+        )),
+
+        union_specifier: $ => prec.right(seq(
+            'union',
+            optional($.ms_declspec_modifier),
+            choice(
+                seq(
+                    field('name', $._type_identifier),
+                    field('body', optional($.field_declaration_list))
+                ),
+                field('body', $.field_declaration_list)
+            )
+        )),
 
         primitive_type: (_, original) => choice(
             original,
@@ -145,10 +188,6 @@ module.exports = grammar(C, {
             $.foreach_statement,
             $.foreach_instance_statement,
             $.unmasked_statement,
-            $.launch_statement,
-            $.sync_statement,
-            $.new_statement,
-            $.delete_statement,
         ),
 
         cif_statement: $ => prec.right(seq(
@@ -217,58 +256,63 @@ module.exports = grammar(C, {
         ),
 
         unmasked_statement: $ => seq(
-            field('ispc_special', $.unmasked),
+            'unmasked',
             field('body', $.compound_statement),
         ),
 
-        launch_statement: $ => prec(1, seq(
-            field('ispc_special', $.launch),
+        _expression: ($, original) => choice(
+            original,
+            $.new_expression,
+            $.delete_expression,
+            $.launch_expression,
+            $.sync_expression,
+        ),
+
+        new_expression: $ => prec.right(PREC.NEW, seq(
+            optional(repeat($.ispc_qualifier)),
+            'new',
+            field('placement', optional($.argument_list)),
+            optional(repeat($.ispc_qualifier)),
+            field('type', $._type_specifier),
+            field('declarator', optional($.new_declarator)),
+            field('arguments', optional(choice(
+                $.argument_list,
+                $.initializer_list
+            )))
+        )),
+
+        new_declarator: $ => prec.right(seq(
+            '[',
+            field('length', $._expression),
+            ']',
+            optional($.new_declarator)
+        )),
+
+        delete_expression: $ => seq(
+            'delete',
+            optional(seq('[', ']')),
+            $._expression
+        ),
+
+        launch_expression: $ => prec.left(1, seq(
+            'launch',
             field('launch_config', optional(choice(
                 repeat1(seq('[', $._expression, ']')),
                 seq('[', $._expression, repeat(seq(',', $._expression)), ']'),
             ))),
-            $.call_expression,
-            ';'
+            $._expression,
         )),
 
-        sync_statement: $ => seq(
-            field('ispc_special', $.sync),
-            ';',
-        ),
-
-        new_statement: $ => seq(
-            $._declaration_specifiers,
-            field('declarator', $._declarator),
-            '=',
-            optional($.type_qualifier),
-            field('ispc_special', $.new_operator),
-            optional($.type_qualifier),
-            field('type', $._type_specifier),
-            optional(choice(
-                seq('[',
-                    repeat($.type_qualifier),
-                    field('size', optional(choice($._expression, '*'))),
-                    ']'),
-                field('initializer', $.parenthesized_expression),
-            )),
-            ';'
-        ),
-
-        delete_statement: $ => seq(
-            field('ispc_special', $.delete_operator),
-            optional(seq('[', ']')),
-            $._expression,
-            ';',
-        ),
+        sync_expression: $ => 'sync',
 
         _declarator: ($, original) => choice(
             original,
-            $.operator_declarator,
+            $.overload_declarator,
             $.reference_declarator,
         ),
 
-        operator_declarator: $ => prec(1, seq(
-            field('declarator', $.overload_operator),
+        overload_declarator: $ => prec(1, seq(
+            'operator',
             field('operator', choice(
                 '*',
                 '/',
@@ -287,18 +331,11 @@ module.exports = grammar(C, {
           optional(field('declarator', $._declarator))
         ))),
 
-        // special keywords
-        task: $ => 'task',
-        unmasked: $ => 'unmasked',
-        launch: $ => 'launch',
-        sync: $ => 'sync',
-        soa: $ => 'soa',
-
         // operators
         range_operator: $ => '...',
         in_operator: $ => 'in',
-        overload_operator: $ => 'operator',
-        new_operator: $ => 'new',
-        delete_operator: $ => 'delete',
+        // overload_operator: $ => 'operator',
+        // new_operator: $ => 'new',
+        // delete_operator: $ => 'delete',
     }
 });
