@@ -508,6 +508,7 @@ struct S operator*(struct S a, struct S b) {
 C++ style references
 ================================================================================
 
+void f(float &);
 void f(float &v) {
     const float &cr = v;
     float const &cr = v;
@@ -516,6 +517,18 @@ void f(float &v) {
 ---
 
 (translation_unit
+    (declaration
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (identifier)
+            parameters: (parameter_list
+                (parameter_declaration
+                    type: (primitive_type)
+                    declarator: (reference_declarator)
+                )
+            )
+        )
+    )
     (function_definition
         type: (primitive_type)
         declarator: (function_declarator

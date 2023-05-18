@@ -10,7 +10,8 @@ module.exports = grammar(C, {
         // [X] new/delete
         // [X] soa
         // [X] operator overloads/in
-        // [ ] template/typename/references
+        // [ ] template/typename/references/default function args
+        // [ ] LLVM intrinsic functions
         // [X] tasks/launch/sync
         //
         // [ ] ISPC constants identifiers
@@ -22,14 +23,14 @@ module.exports = grammar(C, {
             original,
             'export',
             'noinline',
-            field('ispc_special', $.task),
-            field('ispc_special', $.unmasked),
         ),
 
         type_qualifier: ($, original) => choice(
             original,
             'varying',
             'uniform',
+            field('ispc_special', $.task),
+            field('ispc_special', $.unmasked),
             $._soa_qualifier,
         ),
 
@@ -43,6 +44,21 @@ module.exports = grammar(C, {
         _type_specifier: ($, original) => choice(
             original,
             $.short_vector,
+        ),
+
+        sized_type_specifier: $ => seq(
+            repeat1(choice(
+                'signed',
+                'unsigned',
+                'long',
+                'short'
+            )),
+            optional(choice('varying', 'uniform')),
+            field('type', optional(choice(
+                prec.dynamic(-1, $._type_identifier),
+                $.primitive_type,
+                $.short_vector,
+            )))
         ),
 
         short_vector: $ => seq(
@@ -70,6 +86,55 @@ module.exports = grammar(C, {
             '__vectorcall',
             '__regcall',
         ),
+
+        ms_declspec_modifier: $ => seq(
+            '__declspec',
+            '(',
+            $.identifier, repeat(seq(',', $.identifier)),
+            ')',
+        ),
+
+        parameter_declaration: $ => seq(
+            $._declaration_specifiers,
+            optional(field('declarator', choice(
+                $._declarator,
+                $._abstract_declarator,
+                $.init_declarator
+            )))
+        ),
+
+        number_literal: $ => {
+            const separator = "'";
+            const hex = /[0-9a-fA-F]/;
+            const decimal = /[0-9]/;
+            const hexDigits = seq(repeat1(hex), repeat(seq(separator, repeat1(hex))));
+            const decimalDigits = seq(repeat1(decimal), repeat(seq(separator, repeat1(decimal))));
+            return token(seq(
+                optional(/[-\+]/),
+                optional(choice('0x', '0b')),
+                choice(
+                    seq(
+                        choice(
+                            decimalDigits,
+                            seq('0b', decimalDigits),
+                            seq('0x', hexDigits)
+                        ),
+                        optional(seq('.', optional(hexDigits)))
+                    ),
+                    seq('.', decimalDigits)
+                ),
+                optional(seq(
+                    /[eEdDpP]/,
+                    optional(seq(
+                        optional(/[-\+]/),
+                        hexDigits
+                    ))
+                )),
+                repeat(choice(
+                    'u', 'l', 'U', 'L', 'k', 'M', 'G',
+                    'f16', 'f', 'd', 'F16', 'F', 'D'))
+            ))
+        },
 
         _non_case_statement: ($, original) => choice(
             original,
@@ -218,9 +283,8 @@ module.exports = grammar(C, {
           )),
 
         reference_declarator: $ => prec.dynamic(1, prec.right(seq(
-          // repeat($.type_qualifier),
           '&',
-          field('declarator', $._declarator)
+          optional(field('declarator', $._declarator))
         ))),
 
         // special keywords

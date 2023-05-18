@@ -42,18 +42,38 @@ Task function
 ================================================================================
 
 task void f();
+typedef task void (*TaskFn)(float i);
 
 ---
 
 (translation_unit
     (declaration
-        (storage_class_specifier
+        (type_qualifier
             ispc_special: (task)
         )
         type: (primitive_type)
         declarator: (function_declarator
             declarator: (identifier)
             parameters: (parameter_list)
+        )
+    )
+    (type_definition
+        (type_qualifier
+            ispc_special: (task)
+        )
+        type: (primitive_type)
+        declarator: (function_declarator
+            declarator: (parenthesized_declarator
+                (pointer_declarator
+                    declarator: (type_identifier)
+                )
+            )
+            parameters: (parameter_list
+                (parameter_declaration
+                    type: (primitive_type)
+                    declarator: (identifier)
+                )
+            )
         )
     )
 )
@@ -68,7 +88,7 @@ unmasked void f();
 
 (translation_unit
     (declaration
-        (storage_class_specifier
+        (type_qualifier
             ispc_special: (unmasked)
         )
         type: (primitive_type)
