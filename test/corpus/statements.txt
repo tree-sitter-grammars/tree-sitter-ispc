@@ -24,9 +24,7 @@ cif (x < y) {
         )
         consequence: (compound_statement
             (declaration
-                (type_qualifier
-                    (ispc_qualifier)
-                )
+                (type_qualifier)
                 type: (primitive_type)
                 declarator: (identifier)
             )
@@ -42,18 +40,14 @@ cif (x < y) {
         )
         consequence: (compound_statement
             (declaration
-                (type_qualifier
-                    (ispc_qualifier)
-                )
+                (type_qualifier)
                 type: (primitive_type)
                 declarator: (identifier)
             )
         )
         alternative: (compound_statement
             (declaration
-                (type_qualifier
-                    (ispc_qualifier)
-                )
+                (type_qualifier)
                 type: (primitive_type)
                 declarator: (identifier)
             )
@@ -156,7 +150,6 @@ foreach_tiled (ix = 0 ... Nx, iy = 0 ... Ny) {
             left: (identifier)
             right: (number_literal)
         )
-        (range_operator)
         range_end: (identifier)
         body: (compound_statement)
     )
@@ -165,13 +158,11 @@ foreach_tiled (ix = 0 ... Nx, iy = 0 ... Ny) {
             left: (identifier)
             right: (number_literal)
         )
-        (range_operator)
         range_end: (identifier)
         range_start: (assignment_expression
             left: (identifier)
             right: (number_literal)
         )
-        (range_operator)
         range_end: (identifier)
         body: (compound_statement)
     )
@@ -181,7 +172,6 @@ foreach_tiled (ix = 0 ... Nx, iy = 0 ... Ny) {
             left: (identifier)
             right: (number_literal)
         )
-        (range_operator)
         range_end: (identifier)
         body: (compound_statement)
     )
@@ -190,13 +180,11 @@ foreach_tiled (ix = 0 ... Nx, iy = 0 ... Ny) {
             left: (identifier)
             right: (number_literal)
         )
-        (range_operator)
         range_end: (identifier)
         range_start: (assignment_expression
             left: (identifier)
             right: (number_literal)
         )
-        (range_operator)
         range_end: (identifier)
         body: (compound_statement)
     )
@@ -222,7 +210,6 @@ foreach_unique (i in x) {
 
     (foreach_instance_statement
         initializer: (identifier)
-        (in_operator)
         condition: (identifier)
         body: (compound_statement)
     )
@@ -386,21 +373,15 @@ varying Foo * uniform ptr = (varying Foo * uniform)(uniform new varying int32[nF
 ---
 
 (translation_unit
-    (declaration
-        (type_qualifier
-            (ispc_qualifier)
+    (declaration (type_qualifier
         )
         type: (primitive_type)
         declarator: (init_declarator
             declarator: (pointer_declarator
-                (type_qualifier
-                    (ispc_qualifier)
-                )
+                (type_qualifier)
                 declarator: (identifier)
             )
             value: (new_expression
-                (ispc_qualifier)
-                (ispc_qualifier)
                 type: (primitive_type)
                 declarator: (new_declarator
                     length: (number_literal)
@@ -412,13 +393,10 @@ varying Foo * uniform ptr = (varying Foo * uniform)(uniform new varying int32[nF
         type: (primitive_type)
         declarator: (init_declarator
             declarator: (pointer_declarator
-                (type_qualifier
-                    (ispc_qualifier)
-                )
+                (type_qualifier)
                 declarator: (identifier)
             )
             value: (new_expression
-                (ispc_qualifier)
                 type: (primitive_type)
                 declarator: (new_declarator
                     length: (number_literal)
@@ -441,16 +419,13 @@ varying Foo * uniform ptr = (varying Foo * uniform)(uniform new varying int32[nF
         )
     )
     (declaration
-        (type_qualifier
-            (ispc_qualifier)
-        )
+        (type_qualifier)
         type: (primitive_type)
         declarator: (init_declarator
             declarator: (pointer_declarator
                 declarator: (identifier)
             )
             value: (new_expression
-                (ispc_qualifier)
                 type: (primitive_type)
                 declarator: (new_declarator
                     length: (number_literal)
@@ -487,22 +462,18 @@ varying Foo * uniform ptr = (varying Foo * uniform)(uniform new varying int32[nF
     )
     (declaration
         (type_qualifier
-            (ispc_qualifier
+            ispc: (soa_qualifier
                 (number_literal)
             )
         )
         type: (type_identifier)
         declarator: (init_declarator
             declarator: (pointer_declarator
-                (type_qualifier
-                    (ispc_qualifier)
-                )
+                (type_qualifier)
                 declarator: (identifier)
             )
             value: (new_expression
-                (ispc_qualifier)
-                (ispc_qualifier)
-                (ispc_qualifier
+                ispc: (soa_qualifier
                     (number_literal)
                 )
                 type: (type_identifier)
@@ -525,7 +496,6 @@ varying Foo * uniform ptr = (varying Foo * uniform)(uniform new varying int32[nF
                 index: (identifier)
             )
             right: (new_expression
-                (ispc_qualifier)
                 type: (type_identifier)
                 declarator: (new_declarator
                     length: (number_literal)
@@ -534,33 +504,23 @@ varying Foo * uniform ptr = (varying Foo * uniform)(uniform new varying int32[nF
         )
     )
     (declaration
-        (type_qualifier
-            (ispc_qualifier)
-        )
+        (type_qualifier)
         type: (type_identifier)
         declarator: (init_declarator
             declarator: (pointer_declarator
-                (type_qualifier
-                    (ispc_qualifier)
-                )
+                (type_qualifier)
                 declarator: (identifier)
             )
             value: (cast_expression
                 type: (type_descriptor
-                    (type_qualifier
-                        (ispc_qualifier)
-                    )
+                    (type_qualifier)
                     type: (type_identifier)
                     declarator: (abstract_pointer_declarator
-                        (type_qualifier
-                            (ispc_qualifier)
-                        )
+                        (type_qualifier)
                     )
                 )
                 value: (parenthesized_expression
                     (new_expression
-                        (ispc_qualifier)
-                        (ispc_qualifier)
                         type: (primitive_type)
                         declarator: (new_declarator
                             length: (identifier)

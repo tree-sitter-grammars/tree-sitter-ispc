@@ -176,9 +176,7 @@ void foo() {
                 )
             )
             (declaration
-                (type_qualifier
-                    (ispc_qualifier)
-                )
+                (type_qualifier)
                 type: (primitive_type)
                 declarator: (init_declarator
                     declarator: (identifier)
@@ -187,9 +185,7 @@ void foo() {
                             name: (identifier)
                             arguments: (template_argument_list
                                 (type_descriptor
-                                    (type_qualifier
-                                        (ispc_qualifier)
-                                    )
+                                    (type_qualifier)
                                     type: (primitive_type)
                                 )
                             )
@@ -202,9 +198,7 @@ void foo() {
                 )
             )
             (declaration
-                (type_qualifier
-                    (ispc_qualifier)
-                )
+                (type_qualifier)
                 type: (primitive_type)
                 declarator: (init_declarator
                     declarator: (identifier)
@@ -213,9 +207,7 @@ void foo() {
                             name: (identifier)
                             arguments: (template_argument_list
                                 (type_descriptor
-                                    (type_qualifier
-                                        (ispc_qualifier)
-                                    )
+                                    (type_qualifier)
                                     type: (primitive_type)
                                 )
                             )

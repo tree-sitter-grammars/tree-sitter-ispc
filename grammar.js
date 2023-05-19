@@ -24,24 +24,24 @@ module.exports = grammar(C, {
 
         storage_class_specifier: ($, original) => choice(
             original,
-            'export',
-            'noinline',
+            field("ispc", 'export'),
+            field("ispc", 'noinline'),
         ),
 
         type_qualifier: ($, original) => prec(1, choice(
             original,
-            $.ispc_qualifier,
+            field("ispc", $._ispc_qualifier),
         )),
 
-        ispc_qualifier: $ => choice(
+        _ispc_qualifier: $ => choice(
             'varying',
             'uniform',
-            'task',
             'unmasked',
-            $._soa_qualifier,
+            'task',
+            $.soa_qualifier,
         ),
 
-        _soa_qualifier: $ => seq(
+        soa_qualifier: $ => seq(
             'soa',
             '<',
             $.number_literal,
@@ -60,7 +60,7 @@ module.exports = grammar(C, {
                 'long',
                 'short'
             )),
-            optional(choice('varying', 'uniform')),
+            optional(field("ispc", choice('varying', 'uniform'))),
             field('type', optional(choice(
                 prec.dynamic(-1, $._type_identifier),
                 $.primitive_type,
@@ -223,7 +223,7 @@ module.exports = grammar(C, {
             field('initializer', $._expression),
             optional(
                 seq(
-                    $.in_operator,
+                    field('in_operator', 'in'),
                     field('condition', $._expression),
                 )
             ),
@@ -233,7 +233,7 @@ module.exports = grammar(C, {
 
         _foreach_range: $ => seq(
             field('range_start', $._expression),
-            $.range_operator,
+            field('range_operator', '...'),
             field('range_end', $._expression),
         ),
 
@@ -255,10 +255,10 @@ module.exports = grammar(C, {
         ),
 
         new_expression: $ => prec.right(PREC.NEW, seq(
-            optional(repeat($.ispc_qualifier)),
+            optional(repeat(field("ispc", $._ispc_qualifier))),
             'new',
             field('placement', optional($.argument_list)),
-            optional(repeat($.ispc_qualifier)),
+            optional(repeat(field("ispc", $._ispc_qualifier))),
             field('type', $._type_specifier),
             field('declarator', optional($.new_declarator)),
             field('arguments', optional(choice(
@@ -391,11 +391,6 @@ module.exports = grammar(C, {
         )),
 
         llvm_identifier: $ => /[%@][-a-zA-Z$._][-a-zA-Z$._0-9]*/,
-
-        // special operators
-
-        range_operator: $ => '...',
-        in_operator: $ => 'in',
     }
 });
 
