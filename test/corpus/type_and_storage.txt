@@ -268,7 +268,6 @@ extern "C" __regcall int f() {}
 
 (translation_unit
     (function_definition
-        (ms_call_modifier)
         type: (primitive_type)
         declarator: (function_declarator
             declarator: (identifier)
@@ -277,7 +276,6 @@ extern "C" __regcall int f() {}
         body: (compound_statement)
     )
     (function_definition
-        (ms_call_modifier)
         type: (primitive_type)
         declarator: (function_declarator
             declarator: (identifier)
@@ -288,7 +286,6 @@ extern "C" __regcall int f() {}
     (linkage_specification
         value: (string_literal)
         body: (function_definition
-            (ms_call_modifier)
             type: (primitive_type)
             declarator: (function_declarator
                 declarator: (identifier)

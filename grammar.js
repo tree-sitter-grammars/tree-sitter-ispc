@@ -10,6 +10,7 @@ module.exports = grammar(C, {
     conflicts: ($, original) => original.concat([
         [$.template_function, $._expression],
         [$.call_expression, $.llvm_expression],
+        [$._declaration_modifiers, $.ms_call_modifier],
     ]),
 
     rules: {
@@ -122,7 +123,7 @@ module.exports = grammar(C, {
             'float16',
         ),
 
-        ms_call_modifier: (_, original) => choice(
+        _declaration_modifiers: ($, original) => choice(
             original,
             '__vectorcall',
             '__regcall',
@@ -328,6 +329,16 @@ module.exports = grammar(C, {
             $.template_function,
         ),
 
+        _field_declarator: ($, original) => choice(
+            original,
+            alias($.reference_field_declarator, $.reference_declarator),
+        ),
+
+        _abstract_declarator: ($, original) => choice(
+            original,
+            $.abstract_reference_declarator
+        ),
+
         overload_declarator: $ => prec(1, seq(
             'operator',
             field('operator', choice(
@@ -343,10 +354,16 @@ module.exports = grammar(C, {
             repeat($.attribute_specifier),
           )),
 
-        reference_declarator: $ => prec.dynamic(1, prec.right(seq(
-          '&',
-          optional(field('declarator', $._declarator))
-        ))),
+
+        reference_declarator: $ => prec.dynamic(1, prec.right(1,
+            seq('&', optional(field('declarator', $._declarator)))
+        )),
+        reference_field_declarator: $ => prec.dynamic(1, prec.right(
+            seq('&', field('declarator', optional($._field_declarator)))
+        )),
+        abstract_reference_declarator: $ => prec.dynamic(1, prec.right(
+            seq('&', field('declarator', optional($._abstract_declarator)))
+        )),
 
         // C++ templates support
 
