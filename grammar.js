@@ -311,7 +311,7 @@ module.exports = grammar(C, {
         ),
 
         overload_declarator: $ => prec(1, seq(
-            'operator',
+            field('name', 'operator'),
             field('operator', choice(
                 '*',
                 '/',
