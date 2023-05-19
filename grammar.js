@@ -158,13 +158,14 @@ module.exports = grammar(C, {
                 repeat1(decimal), repeat(seq(separator, repeat1(decimal))));
             return token(seq(
                 optional(/[-\+]/),
-                optional(choice('0x', '0b')),
+                optional(choice('0x', '0X', '0b')),
                 choice(
                     seq(
                         choice(
                             decimalDigits,
                             seq('0b', decimalDigits),
-                            seq('0x', hexDigits)
+                            seq('0x', hexDigits),
+                            seq('0X', hexDigits),
                         ),
                         optional(seq('.', optional(hexDigits)))
                     ),
@@ -398,10 +399,11 @@ module.exports = grammar(C, {
         // LLVM intrinsics support
 
         llvm_expression: $ => prec(PREC.CALL, seq(
-            '@',
-            field('function', $._expression),
+            field('function', $.llvm_intrinsic),
             field('arguments', $.argument_list)
         )),
+
+        llvm_intrinsic: $ => /@llvm[^(]*/,
 
         // special operators
 
