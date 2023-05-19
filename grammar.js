@@ -70,7 +70,7 @@ module.exports = grammar(C, {
         short_vector: $ => prec(1, seq(
             $.primitive_type,
             '<',
-            $.number_literal,
+            choice($.number_literal, $.identifier),
             '>'
         )),
 
