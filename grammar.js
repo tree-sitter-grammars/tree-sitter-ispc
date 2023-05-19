@@ -399,11 +399,11 @@ module.exports = grammar(C, {
         // LLVM intrinsics support
 
         llvm_expression: $ => prec(PREC.CALL, seq(
-            field('function', $.llvm_intrinsic),
+            field('function', $.llvm_identifier),
             field('arguments', $.argument_list)
         )),
 
-        llvm_intrinsic: $ => /@llvm[^(]*/,
+        llvm_identifier: $ => /[%@][-a-zA-Z$._][-a-zA-Z$._0-9]*/,
 
         // special operators
 
