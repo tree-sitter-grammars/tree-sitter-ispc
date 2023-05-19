@@ -75,40 +75,9 @@ module.exports = grammar(C, {
             '>'
         )),
 
-        enum_specifier: $ => prec.right(seq(
-            'enum',
-            choice(
-                seq(
-                    field('name', $._type_identifier),
-                    field('body', optional($.enumerator_list))
-                ),
-                field('body', $.enumerator_list)
-            )
-        )),
-
-        struct_specifier: $ => prec.right(seq(
-            'struct',
-            optional($.ms_declspec_modifier),
-            choice(
-                seq(
-                    field('name', $._type_identifier),
-                    field('body', optional($.field_declaration_list))
-                ),
-                field('body', $.field_declaration_list)
-            )
-        )),
-
-        union_specifier: $ => prec.right(seq(
-            'union',
-            optional($.ms_declspec_modifier),
-            choice(
-                seq(
-                    field('name', $._type_identifier),
-                    field('body', optional($.field_declaration_list))
-                ),
-                field('body', $.field_declaration_list)
-            )
-        )),
+        enum_specifier: ($, original) => prec.right(original),
+        struct_specifier: ($, original) => prec.right(original),
+        union_specifier: ($, original) => prec.right(original),
 
         primitive_type: (_, original) => choice(
             original,
