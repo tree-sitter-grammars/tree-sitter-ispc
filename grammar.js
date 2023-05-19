@@ -322,6 +322,8 @@ module.exports = grammar(C, {
 
         sync_expression: $ => 'sync',
 
+        // function overloading and C++ references
+
         _declarator: ($, original) => choice(
             original,
             $.overload_declarator,
@@ -353,7 +355,6 @@ module.exports = grammar(C, {
             field('parameters', $.parameter_list),
             repeat($.attribute_specifier),
           )),
-
 
         reference_declarator: $ => prec.dynamic(1, prec.right(1,
             seq('&', optional(field('declarator', $._declarator)))
