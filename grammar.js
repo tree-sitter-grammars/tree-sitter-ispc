@@ -159,17 +159,13 @@ module.exports = grammar(C, {
 
         _non_case_statement: ($, original) => choice(
             original,
-            $.cif_statement,
-            $.cwhile_statement,
-            $.cdo_statement,
-            $.cfor_statement,
             $.foreach_statement,
             $.foreach_instance_statement,
             $.unmasked_statement,
         ),
 
-        cif_statement: $ => prec.right(seq(
-            'cif',
+        if_statement: $ => prec.right(seq(
+            choice('if', 'cif'),
             field('condition', $.parenthesized_expression),
             field('consequence', $._statement),
             optional(seq(
@@ -178,34 +174,29 @@ module.exports = grammar(C, {
             ))
         )),
 
-        cwhile_statement: $ => seq(
-            'cwhile',
+        while_statement: $ => seq(
+            choice('while', 'cwhile'),
             field('condition', $.parenthesized_expression),
             field('body', $._statement)
         ),
 
-        cdo_statement: $ => seq(
-            'cdo',
+        do_statement: $ => seq(
+            choice('do', 'cdo'),
             field('body', $._statement),
             'while',
             field('condition', $.parenthesized_expression),
             ';'
         ),
 
-        cfor_statement: $ => seq(
-            'cfor',
+        for_statement: $ => seq(
+            choice('for', 'cfor'),
             '(',
             choice(
                 field('initializer', $.declaration),
-                seq(field('initializer',
-                          optional(choice($._expression, $.comma_expression))),
-                    ';')
+                seq(field('initializer', optional(choice($._expression, $.comma_expression))), ';')
             ),
-            field('condition',
-                  optional(choice($._expression, $.comma_expression))),
-            ';',
-            field('update',
-                  optional(choice($._expression, $.comma_expression))),
+            field('condition', optional(choice($._expression, $.comma_expression))), ';',
+            field('update', optional(choice($._expression, $.comma_expression))),
             ')',
             field('body', $._statement)
         ),

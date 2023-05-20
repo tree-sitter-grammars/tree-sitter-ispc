@@ -15,7 +15,7 @@ cif (x < y) {
 ---
 
 (translation_unit
-    (cif_statement
+    (if_statement
         condition: (parenthesized_expression
             (binary_expression
                 left: (identifier)
@@ -31,7 +31,7 @@ cif (x < y) {
         )
     )
 
-    (cif_statement
+    (if_statement
         condition: (parenthesized_expression
             (binary_expression
                 left: (identifier)
@@ -65,7 +65,7 @@ cwhile (true) {
 ---
 
 (translation_unit
-    (cwhile_statement
+    (while_statement
         condition: (parenthesized_expression
             (true)
         )
@@ -83,7 +83,7 @@ cdo {
 ---
 
 (translation_unit
-    (cdo_statement
+    (do_statement
         body: (compound_statement)
         condition: (parenthesized_expression
             (true)
@@ -104,10 +104,10 @@ cfor (int i = 0; i < 10; i++) {
 ---
 
 (translation_unit
-    (cfor_statement
+    (for_statement
         body: (compound_statement)
     )
-    (cfor_statement
+    (for_statement
         initializer: (declaration
             type: (primitive_type)
             declarator: (init_declarator
