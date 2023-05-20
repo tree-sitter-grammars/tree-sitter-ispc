@@ -90,6 +90,7 @@ module.exports = grammar(C, {
             'uint32',
             'uint64',
             'float16',
+            'ptrdiff_t',
         ),
 
         _declaration_modifiers: ($, original) => choice(
