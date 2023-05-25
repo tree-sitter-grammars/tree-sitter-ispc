@@ -120,13 +120,12 @@ module.exports = grammar(C, {
         // number literal extensions
 
         number_literal: $ => {
-            const separator = "'";
             const hex = /[0-9a-fA-F]/;
             const decimal = /[0-9]/;
-            const hexDigits = seq(
-                repeat1(hex), repeat(seq(separator, repeat1(hex))));
-            const decimalDigits = seq(
-                repeat1(decimal), repeat(seq(separator, repeat1(decimal))));
+            const binary = /[0-1]/;
+            const hexDigits = repeat1(hex);
+            const decimalDigits = repeat1(decimal);
+            const binaryDigits = repeat1(binary);
             return token(seq(
                 optional(/[-\+]/),
                 optional(choice('0x', '0X', '0b')),
@@ -134,7 +133,7 @@ module.exports = grammar(C, {
                     seq(
                         choice(
                             decimalDigits,
-                            seq('0b', decimalDigits),
+                            seq('0b', binaryDigits),
                             seq('0x', hexDigits),
                             seq('0X', hexDigits),
                         ),
@@ -149,9 +148,8 @@ module.exports = grammar(C, {
                         hexDigits
                     ))
                 )),
-                repeat(choice(
-                    'u', 'l', 'U', 'L', 'k', 'M', 'G',
-                    'f16', 'f', 'd', 'F16', 'F', 'D'))
+                optional(choice('k', 'M', 'G')),
+                repeat(choice('u', 'l', 'U', 'L', 'f16', 'f', 'd', 'F16', 'F', 'D')),
             ))
         },
 
