@@ -16,3 +16,6 @@ tree-sitter parse -q -s ${src}/tests/lit-tests/*.ispc
 
 echo "ISPC tests_errors/*.ispc:"
 tree-sitter parse -q -s ${src}/tests_errors/*.ispc
+
+echo "ISPC examples/*:"
+tree-sitter parse -q -s --paths <(find ${src}/examples -type f -name "*.ispc")
