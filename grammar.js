@@ -9,6 +9,7 @@ module.exports = grammar(C, {
 
     conflicts: ($, original) => original.concat([
         [$.template_function, $._expression],
+        [$.template_function, $._expression_not_binary],
         [$.call_expression, $.llvm_expression],
         [$._declaration_modifiers, $.ms_call_modifier],
     ]),
@@ -18,6 +19,19 @@ module.exports = grammar(C, {
             original,
             $.template_declaration,
             $.template_instantiation,
+        ),
+
+        _block_item: ($, original) => choice(
+            original,
+            $.template_declaration,
+            $.template_instantiation,
+        ),
+
+        _top_level_statement: ($, original) => choice(
+            original,
+            $.foreach_statement,
+            $.foreach_instance_statement,
+            $.unmasked_statement,
         ),
 
         // storage duration and types
@@ -49,6 +63,11 @@ module.exports = grammar(C, {
         ),
 
         _type_specifier: ($, original) => choice(
+            original,
+            $.short_vector,
+        ),
+
+        _type_declarator: ($, original) => choice(
             original,
             $.short_vector,
         ),
@@ -104,6 +123,15 @@ module.exports = grammar(C, {
             '(',
             $.identifier, repeat(seq(',', $.identifier)),
             ')',
+        ),
+
+        type_definition: $ => seq(
+          'typedef',
+          repeat($.type_qualifier),
+          field('type', $._type_specifier),
+          repeat($.type_qualifier),
+          commaSep1(field('declarator', $._type_declarator)),
+          ';',
         ),
 
         // default function arguments
@@ -234,7 +262,7 @@ module.exports = grammar(C, {
 
         // expressions and declarators
 
-        _expression: ($, original) => choice(
+        _expression_not_binary: ($, original) => choice(
             original,
             $.new_expression,
             $.delete_expression,

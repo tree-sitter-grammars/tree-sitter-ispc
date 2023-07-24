@@ -224,6 +224,8 @@ Short vector types
 
 float<4> vec;
 int8<4> vec;
+typedef float<4> float4;
+typedef int8<4> int8_4;
 
 ---
 
@@ -241,6 +243,20 @@ int8<4> vec;
             (number_literal)
         )
         declarator: (identifier)
+    )
+    (type_definition
+        type: (short_vector
+            (primitive_type)
+            (number_literal)
+        )
+        declarator: (type_identifier)
+    )
+    (type_definition
+        type: (short_vector
+            (primitive_type)
+            (number_literal)
+        )
+        declarator: (type_identifier)
     )
 )
 
@@ -272,7 +288,8 @@ extern "C" __regcall int f() {}
         body: (compound_statement)
     )
     (linkage_specification
-        value: (string_literal)
+        value: (string_literal
+            (string_content))
         body: (function_definition
             type: (primitive_type)
             declarator: (function_declarator
