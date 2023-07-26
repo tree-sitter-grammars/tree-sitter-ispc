@@ -45,12 +45,14 @@ cif (x < y) {
                 declarator: (identifier)
             )
         )
-        alternative: (compound_statement
+        alternative: (else_clause
+          (compound_statement
             (declaration
                 (type_qualifier)
                 type: (primitive_type)
                 declarator: (identifier)
             )
+          )
         )
     )
 )

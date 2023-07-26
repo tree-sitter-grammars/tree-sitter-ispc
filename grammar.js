@@ -194,10 +194,7 @@ module.exports = grammar(C, {
             choice('if', 'cif'),
             field('condition', $.parenthesized_expression),
             field('consequence', $._statement),
-            optional(seq(
-                'else',
-                field('alternative', $._statement)
-            ))
+            optional(field('alternative', $.else_clause)),
         )),
 
         while_statement: $ => seq(
