@@ -7,10 +7,10 @@ const PREC = Object.assign(C.PREC, {
 module.exports = grammar(C, {
     name: 'ispc',
 
-    conflicts: ($, original) => original.concat([
-        [$.template_function, $._expression],
+    conflicts: ($, original) => original
+    .filter((e) => e.len != 0 && e[0].name != 'enum_specifier')
+    .concat([
         [$.template_function, $._expression_not_binary],
-        [$.call_expression, $.llvm_expression],
         [$._declaration_modifiers, $.ms_call_modifier],
     ]),
 

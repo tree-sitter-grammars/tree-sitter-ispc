@@ -1048,7 +1048,7 @@
         "value": -1,
         "content": {
           "type": "PATTERN",
-          "value": "\\S([^/\\n]|\\\\\\r?\\n)*"
+          "value": "\\S([^/\\n]|\\/[^*]|\\\\\\r?\\n)*"
         }
       }
     },
@@ -1944,8 +1944,25 @@
                 "type": "CHOICE",
                 "members": [
                   {
-                    "type": "SYMBOL",
-                    "name": "_declarator"
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "_declarator"
+                      },
+                      {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "gnu_asm_expression"
+                          },
+                          {
+                            "type": "BLANK"
+                          }
+                        ]
+                      }
+                    ]
                   },
                   {
                     "type": "SYMBOL",
@@ -1970,8 +1987,25 @@
                       "type": "CHOICE",
                       "members": [
                         {
-                          "type": "SYMBOL",
-                          "name": "_declarator"
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "SYMBOL",
+                              "name": "_declarator"
+                            },
+                            {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "gnu_asm_expression"
+                                },
+                                {
+                                  "type": "BLANK"
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
                           "type": "SYMBOL",
@@ -2995,7 +3029,7 @@
       }
     },
     "function_declarator": {
-      "type": "PREC",
+      "type": "PREC_RIGHT",
       "value": 1,
       "content": {
         "type": "SEQ",
@@ -3015,6 +3049,18 @@
               "type": "SYMBOL",
               "name": "parameter_list"
             }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "gnu_asm_expression"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
           },
           {
             "type": "REPEAT",
@@ -3427,7 +3473,23 @@
             },
             {
               "type": "STRING",
+              "value": "__inline"
+            },
+            {
+              "type": "STRING",
+              "value": "__inline__"
+            },
+            {
+              "type": "STRING",
+              "value": "__forceinline"
+            },
+            {
+              "type": "STRING",
               "value": "thread_local"
+            },
+            {
+              "type": "STRING",
+              "value": "__thread"
             }
           ]
         },
@@ -3477,6 +3539,10 @@
               {
                 "type": "STRING",
                 "value": "__restrict__"
+              },
+              {
+                "type": "STRING",
+                "value": "__extension__"
               },
               {
                 "type": "STRING",
@@ -5180,6 +5246,10 @@
             },
             {
               "type": "SYMBOL",
+              "name": "alignof_expression"
+            },
+            {
+              "type": "SYMBOL",
               "name": "offsetof_expression"
             },
             {
@@ -6327,6 +6397,61 @@
         ]
       }
     },
+    "alignof_expression": {
+      "type": "PREC",
+      "value": 8,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "__alignof__"
+              },
+              {
+                "type": "STRING",
+                "value": "__alignof"
+              },
+              {
+                "type": "STRING",
+                "value": "_alignof"
+              },
+              {
+                "type": "STRING",
+                "value": "alignof"
+              },
+              {
+                "type": "STRING",
+                "value": "_Alignof"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "("
+              },
+              {
+                "type": "FIELD",
+                "name": "type",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "type_descriptor"
+                }
+              },
+              {
+                "type": "STRING",
+                "value": ")"
+              }
+            ]
+          }
+        ]
+      }
+    },
     "offsetof_expression": {
       "type": "PREC",
       "value": 9,
@@ -6994,8 +7119,25 @@
                   "type": "CHOICE",
                   "members": [
                     {
-                      "type": "SYMBOL",
-                      "name": "_expression"
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "CHOICE",
+                          "members": [
+                            {
+                              "type": "STRING",
+                              "value": "__extension__"
+                            },
+                            {
+                              "type": "BLANK"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "SYMBOL",
+                          "name": "_expression"
+                        }
+                      ]
                     },
                     {
                       "type": "SYMBOL",
@@ -7016,8 +7158,25 @@
                         "type": "CHOICE",
                         "members": [
                           {
-                            "type": "SYMBOL",
-                            "name": "_expression"
+                            "type": "SEQ",
+                            "members": [
+                              {
+                                "type": "CHOICE",
+                                "members": [
+                                  {
+                                    "type": "STRING",
+                                    "value": "__extension__"
+                                  },
+                                  {
+                                    "type": "BLANK"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "SYMBOL",
+                                "name": "_expression"
+                              }
+                            ]
                           },
                           {
                             "type": "SYMBOL",
@@ -7647,11 +7806,24 @@
       "type": "SEQ",
       "members": [
         {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "identifier"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "string_literal"
+            }
+          ]
+        },
+        {
           "type": "SYMBOL",
           "name": "string_literal"
         },
         {
-          "type": "REPEAT1",
+          "type": "REPEAT",
           "content": {
             "type": "CHOICE",
             "members": [
@@ -9006,15 +9178,6 @@
     ],
     [
       "_type_specifier",
-      "_expression"
-    ],
-    [
-      "_type_specifier",
-      "_expression",
-      "macro_type_specifier"
-    ],
-    [
-      "_type_specifier",
       "_expression_not_binary"
     ],
     [
@@ -9030,10 +9193,6 @@
       "sized_type_specifier"
     ],
     [
-      "_type_specifier",
-      "sized_type_specifier"
-    ],
-    [
       "attributed_statement"
     ],
     [
@@ -9041,19 +9200,8 @@
       "attributed_statement"
     ],
     [
-      "enum_specifier"
-    ],
-    [
-      "template_function",
-      "_expression"
-    ],
-    [
       "template_function",
       "_expression_not_binary"
-    ],
-    [
-      "call_expression",
-      "llvm_expression"
     ],
     [
       "_declaration_modifiers",
