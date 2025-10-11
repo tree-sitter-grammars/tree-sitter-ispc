@@ -12,6 +12,7 @@ module.exports = grammar(C, {
     .concat([
         [$.template_function, $._expression_not_binary],
         [$._declaration_modifiers, $.ms_call_modifier],
+        [$.expression, $.template_function]
     ]),
 
     rules: {
@@ -62,7 +63,7 @@ module.exports = grammar(C, {
             '>'
         ),
 
-        _type_specifier: ($, original) => choice(
+        type_specifier: ($, original) => choice(
             original,
             $.short_vector,
         ),
@@ -128,7 +129,7 @@ module.exports = grammar(C, {
         type_definition: $ => seq(
           'typedef',
           repeat($.type_qualifier),
-          field('type', $._type_specifier),
+          field('type', $.type_specifier),
           repeat($.type_qualifier),
           commaSep1(field('declarator', $._type_declarator)),
           ';',
@@ -193,19 +194,19 @@ module.exports = grammar(C, {
         if_statement: $ => prec.right(seq(
             choice('if', 'cif'),
             field('condition', $.parenthesized_expression),
-            field('consequence', $._statement),
+            field('consequence', $.statement),
             optional(field('alternative', $.else_clause)),
         )),
 
         while_statement: $ => seq(
             choice('while', 'cwhile'),
             field('condition', $.parenthesized_expression),
-            field('body', $._statement)
+            field('body', $.statement)
         ),
 
         do_statement: $ => seq(
             choice('do', 'cdo'),
-            field('body', $._statement),
+            field('body', $.statement),
             'while',
             field('condition', $.parenthesized_expression),
             ';'
@@ -216,12 +217,12 @@ module.exports = grammar(C, {
             '(',
             choice(
                 field('initializer', $.declaration),
-                seq(field('initializer', optional(choice($._expression, $.comma_expression))), ';')
+                seq(field('initializer', optional(choice($.expression, $.comma_expression))), ';')
             ),
-            field('condition', optional(choice($._expression, $.comma_expression))), ';',
-            field('update', optional(choice($._expression, $.comma_expression))),
+            field('condition', optional(choice($.expression, $.comma_expression))), ';',
+            field('update', optional(choice($.expression, $.comma_expression))),
             ')',
-            field('body', $._statement)
+            field('body', $.statement)
         ),
 
         foreach_statement: $ => seq(
@@ -229,27 +230,27 @@ module.exports = grammar(C, {
             '(',
             $._foreach_range, repeat(seq(',', $._foreach_range)),
             ')',
-            field('body', $._statement)
+            field('body', $.statement)
         ),
 
         foreach_instance_statement: $ => seq(
             choice('foreach_active', 'foreach_unique'),
             '(',
-            field('initializer', $._expression),
+            field('initializer', $.expression),
             optional(
                 seq(
                     field('in_operator', 'in'),
-                    field('condition', $._expression),
+                    field('condition', $.expression),
                 )
             ),
             ')',
-            field('body', $._statement)
+            field('body', $.statement)
         ),
 
         _foreach_range: $ => seq(
-            field('range_start', $._expression),
+            field('range_start', $.expression),
             field('range_operator', '...'),
-            field('range_end', $._expression),
+            field('range_end', $.expression),
         ),
 
         unmasked_statement: $ => seq(
@@ -274,7 +275,7 @@ module.exports = grammar(C, {
             'new',
             field('placement', optional($.argument_list)),
             optional(repeat(field("ispc", $._ispc_qualifier))),
-            field('type', $._type_specifier),
+            field('type', $.type_specifier),
             field('declarator', optional($.new_declarator)),
             field('arguments', optional(choice(
                 $.argument_list,
@@ -284,7 +285,7 @@ module.exports = grammar(C, {
 
         new_declarator: $ => prec.right(seq(
             '[',
-            field('length', $._expression),
+            field('length', $.expression),
             ']',
             optional($.new_declarator)
         )),
@@ -292,16 +293,16 @@ module.exports = grammar(C, {
         delete_expression: $ => seq(
             'delete',
             optional(seq('[', ']')),
-            $._expression
+            $.expression
         ),
 
         launch_expression: $ => prec.left(1, seq(
             'launch',
             field('launch_config', optional(choice(
-                repeat1(seq('[', $._expression, ']')),
-                seq('[', $._expression, repeat(seq(',', $._expression)), ']'),
+                repeat1(seq('[', $.expression, ']')),
+                seq('[', $.expression, repeat(seq(',', $.expression)), ']'),
             ))),
-            $._expression,
+            $.expression,
         )),
 
         sync_expression: $ => 'sync',
@@ -393,7 +394,7 @@ module.exports = grammar(C, {
             '<',
             commaSep(choice(
                 prec.dynamic(3, $.type_descriptor),
-                prec.dynamic(1, $._expression)
+                prec.dynamic(1, $.expression)
             )),
             alias(token(prec(1, '>')), '>')
         ),
