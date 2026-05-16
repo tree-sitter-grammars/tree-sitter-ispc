@@ -8,9 +8,14 @@ module.exports = grammar(C, {
     name: 'ispc',
 
     conflicts: ($, original) => original
-    .filter((e) => e.len != 0 && e[0].name != 'enum_specifier')
+    .filter((e) => {
+        if (e.len == 0) return false;
+        if (e[0].name == 'enum_specifier') return false;
+        if (e[0].name == 'type_qualifier' && e[1].name == 'extension_expression') return false;
+        if (e[0].name == 'type_specifier' && e[1].name == 'sized_type_specifier') return false;
+        return true;
+    })
     .concat([
-        [$.template_function, $._expression_not_binary],
         [$._declaration_modifiers, $.ms_call_modifier],
         [$.expression, $.template_function]
     ]),

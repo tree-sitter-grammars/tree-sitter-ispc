@@ -1,9 +1,10 @@
 tree-sitter-ispc
 ================
 
-[![build](https://github.com/fab4100/tree-sitter-ispc/actions/workflows/ci.yml/badge.svg)](https://github.com/fab4100/tree-sitter-ispc/actions/workflows/ci.yml)
-[![crates.io](https://github.com/fab4100/tree-sitter-ispc/actions/workflows/publish_crate.yml/badge.svg)](https://github.com/fab4100/tree-sitter-ispc/actions/workflows/publish_crate.yml)
+[![CI][ci]](https://github.com/tree-sitter-grammars/tree-sitter-ispc/actions/workflows/ci.yml)
 
 [ISPC](https://ispc.github.io/ispc.html) grammar for
-[tree-sitter](https://github.com/maxbrunsfeld/tree-sitter) (based on
+[tree-sitter](https://github.com/tree-sitter/tree-sitter) (based on
 [tree-sitter-c](https://github.com/tree-sitter/tree-sitter-c)).
+
+[ci]: https://img.shields.io/github/actions/workflow/status/tree-sitter-grammars/tree-sitter-ispc/ci.yml?logo=github&label=CI

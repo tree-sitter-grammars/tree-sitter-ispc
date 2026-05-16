@@ -1,18 +1,37 @@
-name: build
+name: CI
+
 on:
   push:
-    branches: [master]
+    branches: [ci_dummy]
   pull_request:
     branches: [master]
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    name: Test parser
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up tree-sitter
+        uses: tree-sitter/setup-action/cli@v2
+      # - name: Run tests
+      #   uses: tree-sitter/parser-test-action@v3
+      #   with:
+      #     test-rust: true
+      #     # test-node: true
+      #     # test-python: true
+      #     # test-go: true
+      #     # test-swift: true
+      - name: Parse examples
+        uses: tree-sitter/parse-action@v4
         with:
-          node-version: '18'
-      - name: Install dependencies
-        run: npm ci
-      - name: Run tests
-        run: npm test
+          files: examples/*.ispc

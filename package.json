@@ -1,11 +1,11 @@
 {
   "name": "tree-sitter-ispc",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "ISPC grammar for tree-sitter (based on C grammar)",
   "main": "bindings/node",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ispc/ispc.tree-sitter"
+    "url": "https://github.com/tree-sitter-grammars/tree-sitter-ispc"
   },
   "author": "Fabian Wermelinger",
   "license": "MIT",
@@ -13,8 +13,8 @@
     "nan": "^2.17.0"
   },
   "devDependencies": {
-    "tree-sitter-c": "^0.20.6",
-    "tree-sitter-cli": "^0.20.8"
+    "tree-sitter-c": "^0.24.1",
+    "tree-sitter-cli": "^0.26.8"
   },
   "scripts": {
     "test": "tree-sitter test && tree-sitter parse examples/*.ispc --quiet --time",
