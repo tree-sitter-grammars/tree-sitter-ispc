@@ -1,26 +1,28 @@
 [package]
 name = "tree-sitter-ispc"
 description = "ISPC grammar for tree-sitter (based on C grammar)"
-version = "0.1.0"
-keywords = ["incremental", "parsing", "ispc"]
+version = "0.2.0"
+authors = [
+  "Fabian Wermelinger <fabian@0xfab.ch>"
+]
 categories = ["parsing", "text-editors"]
-repository = "https://github.com/tree-sitter/tree-sitter-ispc"
-edition = "2018"
+edition = "2021"
+keywords = ["incremental", "parsing", "tree-sitter", "ispc"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/tree-sitter-grammars/tree-sitter-ispc"
 
 build = "bindings/rust/build.rs"
-include = [
-  "bindings/rust/*",
-  "grammar.js",
-  "queries/*",
-  "src/*",
-]
+include = ["/LICENSE", "bindings/rust/*", "grammar.js", "queries/*", "src/*", "tree-sitter.json"]
 
 [lib]
 path = "bindings/rust/lib.rs"
 
 [dependencies]
-tree-sitter = "~0.20.10"
+tree-sitter-language = "0.1"
 
 [build-dependencies]
-cc = "1.0"
+cc = "1.2"
+
+[dev-dependencies]
+tree-sitter = "0.25.4"

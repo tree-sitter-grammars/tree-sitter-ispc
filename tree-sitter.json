@@ -7,14 +7,15 @@
       "title": "ISPC",
       "scope": "source.ispc",
       "file-types": [
-        "ispc"
+        "ispc",
+        "isph"
       ],
       "injection-regex": "^ispc$",
       "class-name": "TreeSitterIspc"
     }
   ],
   "metadata": {
-    "version": "0.1.1",
+    "version": "0.2.0",
     "license": "MIT",
     "description": "ISPC grammar for tree-sitter (based on C grammar)",
     "authors": [
@@ -25,14 +26,5 @@
     "links": {
       "repository": "https://github.com/tree-sitter-grammars/tree-sitter-ispc"
     }
-  },
-  "bindings": {
-    "c": true,
-    "go": true,
-    "node": true,
-    "python": true,
-    "rust": true,
-    "swift": true,
-    "zig": false
   }
 }
