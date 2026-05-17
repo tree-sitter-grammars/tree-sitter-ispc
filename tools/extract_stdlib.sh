@@ -2,30 +2,43 @@
 # File       : extract_stdlib.sh
 # Created    : Fri May 19 2023 17:14:02 (-0400)
 # Author     : Fabian Wermelinger
-# Description: Extract built-in standard library functions from stdlib.ispc
+# Description: Extract built-in standard library functions from stdlib.isph
 # Copyright 2023 Fabian Wermelinger. All Rights Reserved.
 
 if [[ $# -ne 1 ]]; then
     cat <<EOF
-USAGE: $0 <path to ISPC stdlib.ispc>
+USAGE: $0 <path to ISPC stdlib dir>
 EOF
     exit 1
 fi
 
 src=$1; shift
+tmp=$(mktemp)
 
-ISPC_MASK_BITS=16
-cpp -DISPC_MASK_BITS=${ISPC_MASK_BITS} ${src} | tr { '\n' |
-    sed -n -r 's/^\s*(static|__declspec).*\W([^_ ]\w+)\s*\(.*$/"\2"/p' >/tmp/stdlib_ispc
-
+# standard library functions
+stdlib_filter() {
+    sed -n -r 's/^.*[\ ]([a-zA-Z][a-zA-Z0-9_]*)\s*\(.*$/"\1"/p'
+}
+cpp ${src}/include/stdlib.isph | tr ';' '\n' | stdlib_filter >${tmp}
+cpp ${src}/include/amx.isph | tr '{' '\n' | stdlib_filter >>${tmp}
+#
 # missing
-echo '"ISPCAlloc"' >>/tmp/stdlib_ispc
-echo '"ISPCLaunch"' >>/tmp/stdlib_ispc
-echo '"ISPCSync"' >>/tmp/stdlib_ispc
-echo '"alloca"' >>/tmp/stdlib_ispc
-echo '"assert"' >>/tmp/stdlib_ispc
-echo '"invoke_sycl"' >>/tmp/stdlib_ispc
-echo '"print"' >>/tmp/stdlib_ispc
+echo '"ISPCAlloc"' >>${tmp}
+echo '"ISPCLaunch"' >>${tmp}
+echo '"ISPCSync"' >>${tmp}
+echo '"ISPCInstrument"' >>${tmp}
+echo '"alloca"' >>${tmp}
+echo '"assert"' >>${tmp}
+echo '"invoke_sycl"' >>${tmp}
+echo '"print"' >>${tmp}
+cat ${tmp} | sort | uniq
 
-cat /tmp/stdlib_ispc | sort | uniq
-rm /tmp/stdlib_ispc
+# builtin and SVML
+builtin_filter() {
+    sed -n -r 's/^.*[\ ]([a-zA-Z_][a-zA-Z0-9_]*)\s*\(.*$/"\1"/p'
+}
+cpp ${src}/include/builtins.isph | tr ';' '\n' | builtin_filter >${tmp}
+cpp ${src}/include/svml.isph | tr ';' '\n' | builtin_filter >>${tmp}
+cat ${tmp} | sort | uniq
+
+rm -f ${tmp}
